@@ -93,6 +93,56 @@ function Html5HlsJS(source, tech) {
     }
   });
 
+  // handle missing audio/video in first few segments
+  let noAudioTrack = false, noVideoTrack = false
+  let snVideoNumberToReload = null, snAudioNumberToReload = null
+  hls.on(Hls.Events.BUFFER_CREATED, function(event, data) {
+    //console.info(event, data);
+    if (typeof data.tracks === "object") {
+      if (typeof data.tracks.audio === "undefined")
+        noAudioTrack = true
+      else if (typeof data.tracks.video === "undefined")
+        noVideoTrack = true
+    }
+  })
+  hls.on(Hls.Events.FRAG_PARSING_DATA, function(event, data) {
+    if (data.type === "video") {
+      if (noVideoTrack && snVideoNumberToReload === null) {
+        snVideoNumberToReload = data.frag.sn
+        //console.info("FRAG_PARSING_DATA will reload at SN for video", snVideoNumberToReload)
+      }
+    } else if (data.type === "audio") {
+      if (noAudioTrack && snAudioNumberToReload === null) {
+        snAudioNumberToReload = data.frag.sn
+        //console.info("FRAG_PARSING_DATA will reload at SN for audio", snAudioNumberToReload)
+      }
+    }
+  })
+  hls.on(Hls.Events.FRAG_CHANGED, function(event, data) {
+    //console.info("Hls.Events.FRAG_CHANGED", noVideoTrack, snVideoNumberToReload, noAudioTrack, snAudioNumberToReload, data)
+    //console.info("=>", data.frag.sn)
+    if (noVideoTrack && snVideoNumberToReload !== null) {
+      if (snVideoNumberToReload <= data.frag.sn) {
+        console.info("call recoverMediaError for video change", data)
+        hls.recoverMediaError()
+        el.play()
+        noVideoTrack = false
+        snVideoNumberToReload = null
+      }
+    }
+    if (noAudioTrack && snAudioNumberToReload !== null) {
+      // reach exist audio track
+      if (snAudioNumberToReload <= data.frag.sn) {
+        // reload audio/video track
+        console.info("call recoverMediaError for audio change", data)
+        hls.recoverMediaError()
+        el.play()
+        noAudioTrack = false
+        snAudioNumberToReload = null
+      }
+    }
+  })
+
   Object.keys(Hls.Events).forEach(function(key) {
     var eventName = Hls.Events[key];
     hls.on(eventName, function(event, data) {
