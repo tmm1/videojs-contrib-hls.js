@@ -94,8 +94,8 @@ function Html5HlsJS(source, tech) {
   });
 
   // handle missing audio/video in first few segments
-  let noAudioTrack = false, noVideoTrack = false
-  let snVideoNumberToReload = null, snAudioNumberToReload = null
+  var noAudioTrack = false, noVideoTrack = false
+  var snVideoNumberToReload = null, snAudioNumberToReload = null
   hls.on(Hls.Events.BUFFER_CREATED, function(event, data) {
     //console.info(event, data);
     if (typeof data.tracks === "object") {
