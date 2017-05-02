@@ -27,12 +27,14 @@ function Html5HlsJS(source, tech) {
 
       if (!_recoverDecodingErrorDate || (now - _recoverDecodingErrorDate) > 2000) {
         _recoverDecodingErrorDate = now;
+        tech.clearTracks(['text'])
         tech.setSource(tech.currentSource_)
         //hls.recoverMediaError();
       }
       else if (!_recoverAudioCodecErrorDate || (now - _recoverAudioCodecErrorDate) > 2000) {
         _recoverAudioCodecErrorDate = now;
         hls.swapAudioCodec();
+        tech.clearTracks(['text'])
         tech.setSource(tech.currentSource_)
         //hls.recoverMediaError();
       }
