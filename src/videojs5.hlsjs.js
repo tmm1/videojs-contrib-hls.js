@@ -68,7 +68,8 @@ function Html5HlsJS(source, tech) {
    * @returns {Infinity|number}
    */
   this.duration = function() {
-    return duration || el.duration || 0;
+    return el.duration || 0
+    //return duration || el.duration || 0;
   };
 
   // update live status on level load
