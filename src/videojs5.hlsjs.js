@@ -27,12 +27,14 @@ function Html5HlsJS(source, tech) {
 
       if (!_recoverDecodingErrorDate || (now - _recoverDecodingErrorDate) > 2000) {
         _recoverDecodingErrorDate = now;
-        hls.recoverMediaError();
+        tech.setSource(tech.currentSource_)
+        //hls.recoverMediaError();
       }
       else if (!_recoverAudioCodecErrorDate || (now - _recoverAudioCodecErrorDate) > 2000) {
         _recoverAudioCodecErrorDate = now;
         hls.swapAudioCodec();
-        hls.recoverMediaError();
+        tech.setSource(tech.currentSource_)
+        //hls.recoverMediaError();
       }
       else {
         console.error('Error loading media: File could not be played');
@@ -125,8 +127,7 @@ function Html5HlsJS(source, tech) {
     if (noVideoTrack && snVideoNumberToReload !== null) {
       if (snVideoNumberToReload <= data.frag.sn) {
         console.info("call recoverMediaError for video change", data)
-        hls.recoverMediaError()
-        el.play()
+        hlsjsErrorHandler();
         noVideoTrack = false
         snVideoNumberToReload = null
       }
@@ -136,8 +137,7 @@ function Html5HlsJS(source, tech) {
       if (snAudioNumberToReload <= data.frag.sn) {
         // reload audio/video track
         console.info("call recoverMediaError for audio change", data)
-        hls.recoverMediaError()
-        el.play()
+        hlsjsErrorHandler();
         noAudioTrack = false
         snAudioNumberToReload = null
       }
