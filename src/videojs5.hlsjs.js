@@ -52,7 +52,10 @@ function Html5HlsJS(source, tech) {
   el.addEventListener('error', function(e) {
     var mediaError = e.currentTarget.error;
 
-    if (mediaError.code === mediaError.MEDIA_ERR_DECODE) {
+    if (!mediaError) {
+      return
+    }
+    else if (mediaError.code === mediaError.MEDIA_ERR_DECODE) {
       videoTagErrorHandler();
     }
     else {
