@@ -173,12 +173,11 @@ function Html5HlsJS(source, tech) {
   hls.loadSource(source.src);
 }
 
-var hlsTypeRE = /^(application\/x-mpegURL|application\/vnd\.apple\.mpegurl)$/i;
+var hlsTypeRE = /^application\/(x-mpegURL|vnd\.apple\.mpegURL)$/i;
+var hlsExtRE = /\.m3u8/i;
 
 var HlsSourceHandler = {
   canHandleSource: function(source) {
-    var hlsExtRE = /\.m3u8/i;
-
     if (source.skipContribHlsJs) {
       return '';
     }
