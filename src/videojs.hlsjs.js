@@ -96,7 +96,7 @@ function Html5HlsJS(source, tech) {
           hls.startLoad();
           break;
         case Hls.ErrorTypes.MEDIA_ERROR:
-          hlsjsErrorHandler();
+          hls.recoverMediaError();
           break;
         default:
           console.error('Error loading media: File could not be played');
