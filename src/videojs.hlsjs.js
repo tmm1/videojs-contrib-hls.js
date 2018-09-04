@@ -22,7 +22,7 @@ function Html5HlsJS(source, tech) {
    * creates an error handler function
    * @returns {Function}
    */
-  function errorHandlerFactory() {
+  function errorHandlerFactory(tech) {
     var _recoverDecodingErrorDate = null;
     var _recoverAudioCodecErrorDate = null;
 
@@ -31,16 +31,22 @@ function Html5HlsJS(source, tech) {
 
       if (!_recoverDecodingErrorDate || (now - _recoverDecodingErrorDate) > 2000) {
         _recoverDecodingErrorDate = now;
-        tech.clearTracks(['text'])
-        tech.setSource(tech.currentSource_)
-        //hls.recoverMediaError();
+        if (tech) {
+          tech.clearTracks(['text'])
+          tech.setSource(tech.currentSource_)
+        } else {
+          hls.recoverMediaError();
+        }
       }
       else if (!_recoverAudioCodecErrorDate || (now - _recoverAudioCodecErrorDate) > 2000) {
         _recoverAudioCodecErrorDate = now;
-        hls.swapAudioCodec();
-        tech.clearTracks(['text'])
-        tech.setSource(tech.currentSource_)
-        //hls.recoverMediaError();
+        if (tech) {
+          tech.clearTracks(['text'])
+          tech.setSource(tech.currentSource_)
+        } else {
+          hls.swapAudioCodec();
+          hls.recoverMediaError();
+        }
       }
       else {
         console.error('Error loading media: File could not be played');
@@ -49,8 +55,9 @@ function Html5HlsJS(source, tech) {
   }
 
   // create separate error handlers for hlsjs and the video tag
-  var hlsjsErrorHandler = errorHandlerFactory();
-  var videoTagErrorHandler = errorHandlerFactory();
+  var hlsjsErrorHandler = errorHandlerFactory(false);
+  var videoTagErrorHandler = errorHandlerFactory(false);
+  var techErrorHandler = errorHandlerFactory(true);
 
   // listen to error events coming from the video tag
   el.addEventListener('error', function(e) {
@@ -136,7 +143,7 @@ function Html5HlsJS(source, tech) {
     if (noVideoTrack && snVideoNumberToReload !== null) {
       if (snVideoNumberToReload <= data.frag.sn) {
         console.info("call recoverMediaError for video change", data)
-        hlsjsErrorHandler();
+        techErrorHandler();
         noVideoTrack = false
         snVideoNumberToReload = null
       }
@@ -146,7 +153,7 @@ function Html5HlsJS(source, tech) {
       if (snAudioNumberToReload <= data.frag.sn) {
         // reload audio/video track
         console.info("call recoverMediaError for audio change", data)
-        hlsjsErrorHandler();
+        techErrorHandler();
         noAudioTrack = false
         snAudioNumberToReload = null
       }
